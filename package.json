@@ -1,0 +1,23 @@
+{
+  "name": "pptv-db",
+  "version": "1.0.0",
+  "description": "",
+  "main": "iib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js"
+  },
+  "author": "Masaya Kazama <miyan@t-p.jp> (https://miyaoka.github.io/)",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^2.7.1"
+  },
+  "dependencies": {
+    "@types/cheerio": "^0.22.7",
+    "axios": "^0.17.1",
+    "cheerio": "^1.0.0-rc.2",
+    "iconv": "^2.3.0",
+    "request-promise": "^4.2.2",
+    "scrape-it": "^5.0.2"
+  }
+}
