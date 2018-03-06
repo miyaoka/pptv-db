@@ -26,12 +26,15 @@ const scrapeRecursive = async (page: string, lastId: string = '') => {
 }
 
 const main = async () => {
-  let lastData
-  try {
-    lastData = (await axios.get(process.env.JSON_DATA_URL)).data
-  } catch (err) {
-    lastData = []
-    console.log(err)
+  let lastData = []
+
+  if (!process.env.PPTV_IGNORE_CACHE) {
+    try {
+      lastData = (await axios.get(process.env.PPTV_CACHE_URL)).data
+    } catch (err) {
+      lastData = []
+      console.log(err)
+    }
   }
 
   const savedList = lastData as Article[]
