@@ -28,7 +28,7 @@ const scrapeRecursive = async (page: string, lastId: string = '') => {
 const main = async () => {
   let lastData = []
 
-  if (!process.env.PPTV_IGNORE_CACHE) {
+  if (!!process.env.PPTV_USE_CACHE) {
     try {
       lastData = (await axios.get(process.env.PPTV_CACHE_URL)).data
     } catch (err) {
