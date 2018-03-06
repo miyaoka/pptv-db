@@ -23,7 +23,7 @@ const parseList = (html): { articles: Article[]; nextPage: string } => {
           selector: 'font',
           convert: (text) => {
             const date = text.replace(/\[(.+)\]/, '$1').split('.')
-            return new Date(date[0], date[1], date[2]).getTime()
+            return new Date(date[0], date[1] - 1, date[2]).getTime()
           }
         },
         thumbnail: {
