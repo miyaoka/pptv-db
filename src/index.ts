@@ -1,45 +1,46 @@
-import * as admin from 'firebase-admin'
-import scrape from './scrape'
+import * as path from 'path'
+import * as fs from 'fs'
+import axios from 'axios'
+import scrape, { Article } from './scrape'
 require('dotenv').config()
+
+const outputPath = path.join('dist', 'pptv.json')
 
 const timeout = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env.PROJECT_ID,
-    clientEmail: process.env.CLIENT_EMAIL,
-    privateKey: process.env.PRIVATE_KEY
-  }),
-  databaseURL: process.env.DATABASE_URL
-})
-
-const db = admin.firestore()
 const waitSpan = 1000
 
-const scrapeRecursive = async (page: string) => {
+const scrapeRecursive = async (page: string, lastId: string = '') => {
   console.log(`Scraping... ${page}`)
   const { articles, nextPage } = await scrape(page)
 
-  let batch = db.batch()
-  articles.forEach((article) => {
-    batch.set(db.collection('articles').doc(article.id), article)
-  })
+  const lastIdx = articles.findIndex((article) => article.id === lastId)
 
-  batch
-    .commit()
-    .then((result) => {
-      console.log(`-> Document successfully written! ${page}`)
-    })
-    .catch((error) => {
-      console.error('-> Error writing document: ', error)
-    })
-
-  if (!nextPage) return
+  if (lastIdx >= 0) return articles.slice(0, lastIdx)
+  if (!nextPage) return articles
 
   await timeout(waitSpan)
-  scrapeRecursive(nextPage)
+  return [...articles, ...(await scrapeRecursive(nextPage, lastId))]
 }
 
-scrapeRecursive('1.htm')
+const main = async () => {
+  let lastData
+  try {
+    lastData = (await axios.get(process.env.JSON_DATA_URL)).data
+  } catch (err) {
+    lastData = []
+    console.log(err)
+  }
+
+  const savedList = lastData as Article[]
+  const lastId: string = savedList.length > 0 ? savedList[0].id : ''
+
+  console.log('lastId: ', lastId)
+  const list = await scrapeRecursive('1.htm', lastId)
+
+  fs.writeFile(outputPath, JSON.stringify([...list, ...savedList]), (err) => {})
+}
+
+main()

@@ -2,9 +2,19 @@ const scrapeIt = require('scrape-it')
 const axios = require('axios')
 const { Iconv } = require('iconv')
 
-const baseUrl = 'http://portal.nifty.com/cs/dpztv/list/'
+const baseUrl = 'http://portal.nifty.com'
 
-const parse = (html) => {
+export interface Article {
+  date: number
+  thumbnail: string
+  url: string
+  title: string
+  author: string
+  desc: string
+  id: string
+}
+
+const parseList = (html): { articles: Article[]; nextPage: string } => {
   return scrapeIt.scrapeHTML(html, {
     articles: {
       listItem: '#mainContents div[align="center"] > table',
@@ -39,24 +49,27 @@ const parse = (html) => {
   })
 }
 
-const scrape = async (page: string) => {
+const scrapeUrl = async (url: string): Promise<string> => {
   try {
     // Convert s-jis to utf-8
-    const res = await axios.get(`${baseUrl}${page}`, { responseType: 'arraybuffer' })
+    const res = await axios.get(url, { responseType: 'arraybuffer' })
     const iconv = new Iconv('CP932', 'UTF-8')
-    const html = iconv.convert(new Buffer(res.data, 'binary')).toString('utf8')
-
-    const { articles, nextPage } = parse(html)
-
-    return {
-      articles: articles.map((article) => ({
-        ...article,
-        id: article.url.split('/').slice(-2, -1)[0]
-      })),
-      nextPage
-    }
+    return iconv.convert(new Buffer(res.data, 'binary')).toString('utf8')
   } catch (error) {
     console.log(error)
+  }
+}
+
+const scrape = async (page: string): Promise<{ articles: Article[]; nextPage: string }> => {
+  const html = await scrapeUrl(`${baseUrl}/cs/dpztv/list/${page}`)
+  const { articles, nextPage } = parseList(html)
+
+  return {
+    articles: articles.map((article) => ({
+      ...article,
+      id: article.url.split('/').slice(-2, -1)[0]
+    })),
+    nextPage
   }
 }
 

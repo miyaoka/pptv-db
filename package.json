@@ -1,8 +1,9 @@
 {
   "name": "pptv-db",
   "version": "1.0.0",
-  "description": "",
+  "description": "pptv json db",
   "main": "iib/index.js",
+  "private": true,
   "scripts": {
     "build": "tsc",
     "start": "npm run build && node dist/index.js"
@@ -10,16 +11,14 @@
   "author": "Masaya Kazama <miyan@t-p.jp> (https://miyaoka.github.io/)",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^2.7.1"
+    "typescript": "^2.7.2"
   },
   "dependencies": {
     "@types/cheerio": "^0.22.7",
-    "axios": "^0.17.1",
+    "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
-    "dotenv": "^5.0.0",
-    "firebase-admin": "^5.8.2",
+    "dotenv": "^5.0.1",
     "iconv": "^2.3.0",
-    "request-promise": "^4.2.2",
     "scrape-it": "^5.0.2"
   }
 }
